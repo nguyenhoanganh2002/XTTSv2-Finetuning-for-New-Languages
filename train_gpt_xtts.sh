@@ -1,5 +1,5 @@
 python train_gpt_xtts.py \
---output_path=hub/ \
+--output_path=checkpoints/ \
 --train_csv_path=datasets/metadata_train.csv \
 --eval_csv_path=datasets/metadata_eval.csv \
 --language="vi" \

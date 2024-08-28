@@ -80,6 +80,7 @@ def coqui(root_path, meta_file, ignored_speakers=None):
             {
                 "text": row.text,
                 "audio_file": audio_path,
+                "ref_file": "null" if "ref_file" not in metadata.columns else os.path.join(root_path, row.ref_file),
                 "speaker_name": speaker_name if speaker_name is not None else row.speaker_name,
                 "emotion_name": emotion_name if emotion_name is not None else row.emotion_name,
                 "root_path": root_path,

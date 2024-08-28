@@ -23,29 +23,41 @@ def key_samples_by_col(samples, col):
     return samples_by_col
 
 
-def get_prompt_slice(gt_path, max_sample_length, min_sample_length, sample_rate, is_eval=False):
-    rel_clip = load_audio(gt_path, sample_rate)
-    # if eval uses a middle size sample when it is possible to be more reproducible
-    if is_eval:
-        sample_length = int((min_sample_length + max_sample_length) / 2)
-    else:
-        sample_length = random.randint(min_sample_length, max_sample_length)
-    gap = rel_clip.shape[-1] - sample_length
-    if gap < 0:
-        sample_length = rel_clip.shape[-1] // 2
-    gap = rel_clip.shape[-1] - sample_length
+def get_prompt_slice(gt_path, max_sample_length, min_sample_length, sample_rate, is_eval=False, ref_path="null"):
+    if ref_path == "null":
+        rel_clip = load_audio(gt_path, sample_rate)
+        # if eval uses a middle size sample when it is possible to be more reproducible
+        if is_eval:
+            sample_length = int((min_sample_length + max_sample_length) / 2)
+        else:
+            sample_length = random.randint(min_sample_length, max_sample_length)
+        gap = rel_clip.shape[-1] - sample_length
+        if gap < 0:
+            sample_length = rel_clip.shape[-1] // 2
+        gap = rel_clip.shape[-1] - sample_length
 
-    # if eval start always from the position 0 to be more reproducible
-    if is_eval:
-        rand_start = 0
-    else:
-        rand_start = random.randint(0, gap)
+        # if eval start always from the position 0 to be more reproducible
+        if is_eval:
+            rand_start = 0
+        else:
+            rand_start = random.randint(0, gap)
 
-    rand_end = rand_start + sample_length
-    rel_clip = rel_clip[:, rand_start:rand_end]
-    rel_clip = F.pad(rel_clip, pad=(0, max_sample_length - rel_clip.shape[-1]))
-    cond_idxs = [rand_start, rand_end]
-    return rel_clip, rel_clip.shape[-1], cond_idxs
+        rand_end = rand_start + sample_length
+        rel_clip = rel_clip[:, rand_start:rand_end]
+        rel_clip = F.pad(rel_clip, pad=(0, max_sample_length - rel_clip.shape[-1]))
+        cond_idxs = [rand_start, rand_end]
+        return rel_clip, rel_clip.shape[-1], cond_idxs
+    else:
+        ref_clip = load_audio(ref_path, sample_rate)
+
+        sample_length = min(max_sample_length, rel_clip.shape[-1])
+
+        rel_clip = rel_clip[:, :sample_length]
+        rel_clip = F.pad(rel_clip, pad=(0, max_sample_length - rel_clip.shape[-1]))
+        cond_idxs = [0, sample_length]
+        return rel_clip, rel_clip.shape[-1], cond_idxs
+
+
 
 
 class XTTSDataset(torch.utils.data.Dataset):
@@ -110,14 +122,14 @@ class XTTSDataset(torch.utils.data.Dataset):
         wav = load_audio(audiopath, self.sample_rate)
         if text is None or len(text.strip()) == 0:
             raise ValueError
-        if wav is None or wav.shape[-1] < (0.5 * self.sample_rate):
+        if wav is None or wav.shape[-1] < (0.2 * self.sample_rate):
             # Ultra short clips are also useless (and can cause problems within some models).
             raise ValueError
 
         if self.use_masking_gt_prompt_approach:
             # get a slice from GT to condition the model
             cond, _, cond_idxs = get_prompt_slice(
-                audiopath, self.max_conditioning_length, self.min_conditioning_length, self.sample_rate, self.is_eval
+                audiopath, self.max_conditioning_length, self.min_conditioning_length, self.sample_rate, self.is_eval, sample["ref_file"]
             )
             # if use masking do not use cond_len
             cond_len = torch.nan
@@ -128,7 +140,7 @@ class XTTSDataset(torch.utils.data.Dataset):
                 else audiopath
             )
             cond, cond_len, _ = get_prompt_slice(
-                ref_sample, self.max_conditioning_length, self.min_conditioning_length, self.sample_rate, self.is_eval
+                ref_sample, self.max_conditioning_length, self.min_conditioning_length, self.sample_rate, self.is_eval, sample["ref_file"]
             )
             # if do not use masking use cond_len
             cond_idxs = torch.nan

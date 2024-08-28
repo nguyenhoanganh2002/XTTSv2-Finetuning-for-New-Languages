@@ -236,4 +236,18 @@ if __name__ == "__main__":
 
     args = parser.parse_args_into_dataclasses()[0]
 
+    train_gpt(
+        language=args.language,
+        train_csv=args.train_csv_path,
+        eval_csv=args.eval_csv_path,
+        output_path=args.output_path,
+        num_epochs=args.num_epochs,
+        batch_size=args.batch_size,
+        grad_acumm=args.grad_acum,
+        weight_decay=args.weight_decay,
+        lr=args.lr,
+        max_text_length=args.max_text_length,
+        max_audio_length=args.max_audio_length
+    )
+
     print(args)
