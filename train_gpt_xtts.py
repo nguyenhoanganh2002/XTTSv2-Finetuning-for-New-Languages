@@ -77,7 +77,8 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     LOGGER_URI = None
 
     # Set here the path that the checkpoints will be saved. Default: ./run/training/
-    OUT_PATH = os.path.join(output_path, "run", "training")
+    # OUT_PATH = os.path.join(output_path, "run", "training")
+    OUT_PATH = output_path
 
     # Training Parameters
     OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
@@ -91,8 +92,8 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
         formatter="coqui",
         dataset_name="ft_dataset",
         path=os.path.dirname(train_csv),
-        meta_file_train=train_csv,
-        meta_file_val=eval_csv,
+        meta_file_train=os.path.basename(train_csv),
+        meta_file_val=os.path.basename(eval_csv),
         language=language,
     )
 
@@ -138,7 +139,7 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     # init args and config
     model_args = GPTArgs(
         max_conditioning_length=132300,  # 6 secs
-        min_conditioning_length=66150,  # 3 secs
+        min_conditioning_length=11025,  # 0.5 secs
         debug_loading_failures=False,
         max_wav_length=max_audio_length,  # ~11.6 seconds
         max_text_length=max_text_length,
@@ -155,41 +156,39 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     # define audio config
     audio_config = XttsAudioConfig(sample_rate=22050, dvae_sample_rate=22050, output_sample_rate=24000)
     # training parameters config
-    config = GPTTrainerConfig(
-        epochs=num_epochs,
-        output_path=OUT_PATH,
-        model_args=model_args,
-        run_name=RUN_NAME,
-        project_name=PROJECT_NAME,
-        run_description="""
-            GPT XTTS training
-            """,
-        dashboard_logger=DASHBOARD_LOGGER,
-        logger_uri=LOGGER_URI,
-        audio=audio_config,
-        batch_size=BATCH_SIZE,
-        batch_group_size=48,
-        eval_batch_size=BATCH_SIZE,
-        num_loader_workers=8,
-        eval_split_max_size=256,
-        print_step=50,
-        plot_step=100,
-        log_model_step=100,
-        save_step=1000,
-        save_n_checkpoints=1,
-        save_checkpoints=True,
-        # target_loss="loss",
-        print_eval=False,
-        # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
-        optimizer="AdamW",
-        optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
-        optimizer_params={"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": weight_decay},
-        lr=lr,  # learning rate
-        lr_scheduler="MultiStepLR",
-        # it was adjusted accordly for the new step scheme
-        lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
-        test_sentences=[],
-    )
+
+    config = GPTTrainerConfig()
+
+    config.load_json(XTTS_CONFIG_FILE)
+
+    config.epochs = num_epochs
+    config.output_path = OUT_PATH
+    config.model_args = model_args
+    config.run_name = RUN_NAME
+    config.project_name = PROJECT_NAME
+    config.run_description = """
+        GPT XTTS training
+        """,
+    config.dashboard_logger = DASHBOARD_LOGGER
+    config.logger_uri = LOGGER_URI
+    config.audio = audio_config
+    config.batch_size = BATCH_SIZE
+    config.num_loader_workers = 8
+    config.eval_split_max_size = 256
+    config.print_step = 50
+    config.plot_step = 100
+    config.log_model_step = 100
+    config.save_step = 1000
+    config.save_n_checkpoints = 1
+    config.save_checkpoints = True
+    config.print_eval = False
+    config.optimizer = "AdamW"
+    config.optimizer_wd_only_on_weights = OPTIMIZER_WD_ONLY_ON_WEIGHTS
+    config.optimizer_params = {"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": weight_decay}
+    config.lr = lr
+    config.lr_scheduler = "MultiStepLR"
+    config.lr_scheduler_params = {"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1}
+    config.test_sentences = []
 
     # init the model from config
     model = GPTTrainer.init_from_config(config)
@@ -211,7 +210,7 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
             grad_accum_steps=GRAD_ACUMM_STEPS,
         ),
         config,
-        output_path=OUT_PATH,
+        output_path=os.path.join(output_path, "run", "training"),
         model=model,
         train_samples=train_samples,
         eval_samples=eval_samples,
@@ -229,25 +228,25 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     del model, trainer, train_samples, eval_samples
     gc.collect()
 
-    return XTTS_CONFIG_FILE, XTTS_CHECKPOINT, TOKENIZER_FILE, trainer_out_path, speaker_ref
+    return trainer_out_path
 
 if __name__ == "__main__":
     parser = HfArgumentParser(XttsTrainerArguments)
 
     args = parser.parse_args_into_dataclasses()[0]
 
-    train_gpt(
+    trainer_out_path = train_gpt(
         language=args.language,
         train_csv=args.train_csv_path,
         eval_csv=args.eval_csv_path,
         output_path=args.output_path,
         num_epochs=args.num_epochs,
         batch_size=args.batch_size,
-        grad_acumm=args.grad_acum,
+        grad_acumm=args.grad_acumm,
         weight_decay=args.weight_decay,
         lr=args.lr,
         max_text_length=args.max_text_length,
         max_audio_length=args.max_audio_length
     )
 
-    print(args)
+    print(f"Checkpoint saved in dir: {trainer_out_path}")

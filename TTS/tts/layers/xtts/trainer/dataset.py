@@ -48,7 +48,7 @@ def get_prompt_slice(gt_path, max_sample_length, min_sample_length, sample_rate,
         cond_idxs = [rand_start, rand_end]
         return rel_clip, rel_clip.shape[-1], cond_idxs
     else:
-        ref_clip = load_audio(ref_path, sample_rate)
+        rel_clip = load_audio(ref_path, sample_rate)
 
         sample_length = min(max_sample_length, rel_clip.shape[-1])
 

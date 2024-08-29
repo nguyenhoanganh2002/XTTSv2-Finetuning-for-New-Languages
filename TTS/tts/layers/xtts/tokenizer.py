@@ -640,7 +640,8 @@ class VoiceBpeTokenizer:
             # @manmay will implement this
             txt = basic_cleaners(txt)
         else:
-            raise NotImplementedError(f"Language '{lang}' is not supported.")
+            txt = basic_cleaners(txt)
+            print(f"[!] Warning: Preprocess [Language '{lang}'] text is not implemented, use `basic_cleaners` instead.")
         return txt
 
     def encode(self, txt, lang):
