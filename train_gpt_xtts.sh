@@ -1,4 +1,4 @@
-python train_gpt_xtts.py \
+CUDA_VISIBLE_DEVICES=1 python train_gpt_xtts.py \
 --output_path=checkpoints/ \
 --train_csv_path=datasets/metadata_train.csv \
 --eval_csv_path=datasets/metadata_eval.csv \
@@ -9,4 +9,5 @@ python train_gpt_xtts.py \
 --max_text_length=250 \
 --max_audio_length=255995 \
 --weight_decay=1e-2 \
---lr=5e-6
+--lr=5e-6 \
+--save_step=2000

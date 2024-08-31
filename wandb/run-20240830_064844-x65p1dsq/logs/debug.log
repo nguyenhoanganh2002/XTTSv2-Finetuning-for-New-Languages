@@ -1,0 +1,30 @@
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Current SDK version is 0.17.0
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Configure stats pid to 41912
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Loading settings from /home/anhnh/.config/wandb/settings
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Loading settings from /mnt/anhnh/TTS/XTTS-3-training-stages/wandb/settings
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-08-30 06:48:44,712 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'train_dvae_xtts.py', 'program_abspath': '/mnt/anhnh/TTS/XTTS-3-training-stages/train_dvae_xtts.py', 'program': '/mnt/anhnh/TTS/XTTS-3-training-stages/train_dvae_xtts.py'}
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:_log_setup():520] Logging user logs to /mnt/anhnh/TTS/XTTS-3-training-stages/wandb/run-20240830_064844-x65p1dsq/logs/debug.log
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:_log_setup():521] Logging internal logs to /mnt/anhnh/TTS/XTTS-3-training-stages/wandb/run-20240830_064844-x65p1dsq/logs/debug-internal.log
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:init():560] calling init triggers
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:init():567] wandb.init called with sweep_config: {}
+config: {}
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:init():610] starting backend
+2024-08-30 06:48:44,713 INFO    MainThread:41912 [wandb_init.py:init():614] setting up manager
+2024-08-30 06:48:44,715 INFO    MainThread:41912 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-08-30 06:48:44,716 INFO    MainThread:41912 [wandb_init.py:init():622] backend started and connected
+2024-08-30 06:48:44,718 INFO    MainThread:41912 [wandb_init.py:init():711] updated telemetry
+2024-08-30 06:48:44,721 INFO    MainThread:41912 [wandb_init.py:init():744] communicating run to backend with 90.0 second timeout
+2024-08-30 06:48:45,300 INFO    MainThread:41912 [wandb_run.py:_on_init():2396] communicating current version
+2024-08-30 06:48:45,345 INFO    MainThread:41912 [wandb_run.py:_on_init():2405] got version response upgrade_message: "wandb version 0.17.8 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-08-30 06:48:45,346 INFO    MainThread:41912 [wandb_init.py:init():795] starting run threads in backend
+2024-08-30 06:49:00,816 INFO    MainThread:41912 [wandb_run.py:_console_start():2374] atexit reg
+2024-08-30 06:49:00,817 INFO    MainThread:41912 [wandb_run.py:_redirect():2229] redirect: wrap_raw
+2024-08-30 06:49:00,817 INFO    MainThread:41912 [wandb_run.py:_redirect():2294] Wrapping output streams.
+2024-08-30 06:49:00,817 INFO    MainThread:41912 [wandb_run.py:_redirect():2319] Redirects installed.
+2024-08-30 06:49:00,819 INFO    MainThread:41912 [wandb_init.py:init():838] run started, returning control to user process
+2024-08-30 06:49:00,819 INFO    MainThread:41912 [wandb_watch.py:watch():51] Watching
+2024-08-30 06:53:32,044 WARNING MsgRouterThr:41912 [router.py:message_loop():77] message_loop has been closed

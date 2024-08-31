@@ -4,3 +4,4 @@ hub/
 __pycache__/
 checkpoints/
 datasets/
+large-datasets/

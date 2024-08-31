@@ -553,6 +553,9 @@ class Xtts(BaseTTS):
                     output_attentions=False,
                     **hf_generate_kwargs,
                 )
+
+                print(gpt_codes)
+
                 expected_output_len = torch.tensor(
                     [gpt_codes.shape[-1] * self.gpt.code_stride_len], device=text_tokens.device
                 )

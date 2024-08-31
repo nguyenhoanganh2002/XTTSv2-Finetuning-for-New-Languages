@@ -67,9 +67,14 @@ class XttsTrainerArguments:
         metadata={"help": "Max text length"},
     )
 
+    save_step: Optional[int] = field(
+        default=5000,
+        metadata={"help": "Save step"},
+    )
 
 
-def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv, output_path, max_audio_length, max_text_length, lr, weight_decay):
+
+def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv, output_path, max_audio_length, max_text_length, lr, weight_decay, save_step):
     #  Logging parameters
     RUN_NAME = "GPT_XTTS_FT"
     PROJECT_NAME = "XTTS_trainer"
@@ -178,7 +183,7 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     config.print_step = 50
     config.plot_step = 100
     config.log_model_step = 100
-    config.save_step = 1000
+    config.save_step = save_step
     config.save_n_checkpoints = 1
     config.save_checkpoints = True
     config.print_eval = False
@@ -207,7 +212,7 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
             restore_path=None,  # xtts checkpoint is restored via xtts_checkpoint key so no need of restore it using Trainer restore_path parameter
             skip_train_epoch=False,
             start_with_eval=START_WITH_EVAL,
-            grad_accum_steps=GRAD_ACUMM_STEPS,
+            grad_accum_steps=GRAD_ACUMM_STEPS
         ),
         config,
         output_path=os.path.join(output_path, "run", "training"),
@@ -246,7 +251,8 @@ if __name__ == "__main__":
         weight_decay=args.weight_decay,
         lr=args.lr,
         max_text_length=args.max_text_length,
-        max_audio_length=args.max_audio_length
+        max_audio_length=args.max_audio_length,
+        save_step=args.save_step
     )
 
     print(f"Checkpoint saved in dir: {trainer_out_path}")
