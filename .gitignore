@@ -6,3 +6,5 @@ checkpoints/
 datasets/
 large-datasets/
 wandb/
+*.ipynb
+*.wav

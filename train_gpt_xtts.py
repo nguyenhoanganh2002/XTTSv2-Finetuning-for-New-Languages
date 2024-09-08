@@ -64,7 +64,7 @@ class XttsTrainerArguments:
 
     lr: Optional[float] = field(
         default=5e-6,
-        metadata={"help": "Max text length"},
+        metadata={"help": "Learning rate"},
     )
 
     save_step: Optional[int] = field(
@@ -135,10 +135,20 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     XTTS_CONFIG_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CONFIG_LINK))  # config.json file
 
     # download XTTS v2.0 files if needed
-    if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
-        print(" > Downloading XTTS v2.0 files!")
+    if not os.path.isfile(TOKENIZER_FILE):
+        print(" > Downloading XTTS v2.0 tokenizer!")
         ModelManager._download_model_files(
-            [TOKENIZER_FILE_LINK, XTTS_CHECKPOINT_LINK, XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+            [TOKENIZER_FILE_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+        )
+    if not os.path.isfile(XTTS_CHECKPOINT):
+        print(" > Downloading XTTS v2.0 checkpoint!")
+        ModelManager._download_model_files(
+            [XTTS_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
+        )
+    if not os.path.isfile(XTTS_CONFIG_FILE):
+        print(" > Downloading XTTS v2.0 config!")
+        ModelManager._download_model_files(
+            [XTTS_CONFIG_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True
         )
 
     # init args and config
