@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python train_gpt_xtts.py \
+CUDA_VISIBLE_DEVICES=0 python train_dvae_xtts.py \
 --output_path=checkpoints/ \
 --train_csv_path=datasets/metadata_train.csv \
 --eval_csv_path=datasets/metadata_eval.csv \

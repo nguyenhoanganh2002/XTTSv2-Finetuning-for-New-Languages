@@ -72,7 +72,7 @@ python extend_vocab_config.py --output_path=checkpoints/ --metadata_path dataset
 To finetune the DVAE, run:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python train_gpt_xtts.py \
+CUDA_VISIBLE_DEVICES=0 python train_dvae_xtts.py \
 --output_path=checkpoints/ \
 --train_csv_path=datasets/metadata_train.csv \
 --eval_csv_path=datasets/metadata_eval.csv \
