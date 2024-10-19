@@ -196,4 +196,5 @@ Audio(out_wav, rate=24000)
 ```
 
 Note: Finetuning the HiFiGAN decoder was attempted but resulted in worse performance. DVAE and GPT finetuning are sufficient for optimal results.
+
 Update: If you have enough short texts in your datasets (about 20 hours), you no need to finetune DVAE.
