@@ -2,6 +2,9 @@
 
 This guide provides instructions for finetuning XTTSv2 on a new language, using Vietnamese (`vi`) as an example.
 
+[UPDATE] A finetuned model for Vietnamese is now available at [anhnh2002/vnTTS](https://huggingface.co/anhnh2002/vnTTS) on Hugging Face
+
+
 ## Table of Contents
 1. [Installation](#1-installation)
 2. [Data Preparation](#2-data-preparation)
@@ -27,7 +30,7 @@ Ensure your data is organized as follows:
 
 ```
 project_root/
-├── datasets/
+├── datasets-1/
 │   ├── wavs/
 │   │   ├── xxx.wav
 │   │   ├── yyy.wav
@@ -35,6 +38,15 @@ project_root/
 │   │   └── ...
 │   ├── metadata_train.csv
 │   ├── metadata_eval.csv
+├── datasets-2/
+│   ├── wavs/
+│   │   ├── xxx.wav
+│   │   ├── yyy.wav
+│   │   ├── zzz.wav
+│   │   └── ...
+│   ├── metadata_train.csv
+│   ├── metadata_eval.csv
+...
 │   
 ├── recipes/
 ├── scripts/
@@ -86,6 +98,7 @@ CUDA_VISIBLE_DEVICES=0 python train_dvae_xtts.py \
 
 For GPT finetuning, execute:
 
+[OUTDATED]
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train_gpt_xtts.py \
 --output_path=checkpoints/ \
@@ -100,6 +113,20 @@ CUDA_VISIBLE_DEVICES=0 python train_gpt_xtts.py \
 --weight_decay=1e-2 \
 --lr=5e-6 \
 --save_step=2000
+```
+[UPDATE - Supports training multiple datasets. Format metadatas parameter as follows: `path_to_train_csv_dataset-1,path_to_eval_csv_dataset-1,language_dataset-1 path_to_train_csv_dataset-2,path_to_eval_csv_dataset-2,language_dataset-2 ...`]
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_gpt_xtts.py \
+--output_path checkpoints/ \
+--metadatas datasets-1/metadata_train.csv,datasets-1/metadata_eval.csv,vi datasets-2/metadata_train.csv,datasets-2/metadata_eval.csv,vi \
+--num_epochs 5 \
+--batch_size 8 \
+--grad_acumm 4 \
+--max_text_length 400 \
+--max_audio_length 330750 \
+--weight_decay 1e-2 \
+--lr 5e-6 \
+--save_step 50000
 ```
 
 ## 7. Usage Example
@@ -169,3 +196,4 @@ Audio(out_wav, rate=24000)
 ```
 
 Note: Finetuning the HiFiGAN decoder was attempted but resulted in worse performance. DVAE and GPT finetuning are sufficient for optimal results.
+Update: If you have enough short texts in your datasets (about 20 hours), you no need to finetune DVAE.
