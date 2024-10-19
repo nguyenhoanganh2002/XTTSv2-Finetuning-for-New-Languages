@@ -56,3 +56,5 @@ unidecode>=1.3.2
 num2words
 spacy[ja]>=3
 tokenizers==0.20.1
+vinorm==2.0.7
+underthesea==6.8.4
