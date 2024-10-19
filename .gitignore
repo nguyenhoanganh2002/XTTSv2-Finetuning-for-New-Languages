@@ -8,3 +8,7 @@ large-datasets/
 wandb/
 *.ipynb
 *.wav
+test.py
+cps/
+vivoice-datasets/
+output/

@@ -12,69 +12,37 @@ from dataclasses import dataclass, field
 from typing import Optional
 from transformers import HfArgumentParser
 
-@dataclass
-class XttsTrainerArguments:
-    """
-    Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
-    """
+import argparse
 
-    output_path: str = field(
-        metadata={"help": "Path to pretrained + checkpoint model"}
-    )
-    train_csv_path: str = field(
-        metadata={"help": "Path to train metadata file"},
-    )
-    eval_csv_path: Optional[str] = field(
-        metadata={"help": "Path to eval metadata file"},
-    )
-    language: Optional[str] = field(
-        default="en",
-        metadata={"help": "The language you want to train (language in your dataset)"},
-    )
+def create_xtts_trainer_parser():
+    parser = argparse.ArgumentParser(description="Arguments for XTTS Trainer")
 
-    num_epochs: Optional[int] = field(
-        default=1,
-        metadata={"help": "Epoch"},
-    )
+    parser.add_argument("--output_path", type=str, required=True,
+                        help="Path to pretrained + checkpoint model")
+    parser.add_argument("--metadatas", nargs='+', type=str, required=True,
+                        help="train_csv_path,eval_csv_path,language")
+    parser.add_argument("--num_epochs", type=int, default=1,
+                        help="Number of epochs")
+    parser.add_argument("--batch_size", type=int, default=1,
+                        help="Mini batch size")
+    parser.add_argument("--grad_acumm", type=int, default=1,
+                        help="Grad accumulation steps")
+    parser.add_argument("--max_audio_length", type=int, default=255995,
+                        help="Max audio length")
+    parser.add_argument("--max_text_length", type=int, default=200,
+                        help="Max text length")
+    parser.add_argument("--weight_decay", type=float, default=1e-2,
+                        help="Weight decay")
+    parser.add_argument("--lr", type=float, default=5e-6,
+                        help="Learning rate")
+    parser.add_argument("--save_step", type=int, default=5000,
+                        help="Save step")
 
-    batch_size: Optional[int] = field(
-        default=1,
-        metadata={"help": "Mini batch"},
-    )
-
-    grad_acumm: Optional[int] = field(
-        default=1,
-        metadata={"help": "Grad accumulation steps"},
-    )
-
-    max_audio_length: Optional[int] = field(
-        default=255995,
-        metadata={"help": "Max audio length"},
-    )
-
-    max_text_length: Optional[int] = field(
-        default=200,
-        metadata={"help": "Max text length"},
-    )
-
-    weight_decay: Optional[float] = field(
-        default=1e-2,
-        metadata={"help": "Max text length"},
-    )
-
-    lr: Optional[float] = field(
-        default=5e-6,
-        metadata={"help": "Learning rate"},
-    )
-
-    save_step: Optional[int] = field(
-        default=5000,
-        metadata={"help": "Save step"},
-    )
+    return parser
 
 
 
-def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv, output_path, max_audio_length, max_text_length, lr, weight_decay, save_step):
+def train_gpt(metadatas, num_epochs, batch_size, grad_acumm, output_path, max_audio_length, max_text_length, lr, weight_decay, save_step):
     #  Logging parameters
     RUN_NAME = "GPT_XTTS_FT"
     PROJECT_NAME = "XTTS_trainer"
@@ -93,17 +61,21 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
 
 
     # Define here the dataset that you want to use for the fine-tuning on.
-    config_dataset = BaseDatasetConfig(
-        formatter="coqui",
-        dataset_name="ft_dataset",
-        path=os.path.dirname(train_csv),
-        meta_file_train=os.path.basename(train_csv),
-        meta_file_val=os.path.basename(eval_csv),
-        language=language,
-    )
+    DATASETS_CONFIG_LIST = []
+    for metadata in metadatas:
+        train_csv, eval_csv, language = metadata.split(",")
+        print(train_csv, eval_csv, language)
 
-    # Add here the configs of the datasets
-    DATASETS_CONFIG_LIST = [config_dataset]
+        config_dataset = BaseDatasetConfig(
+            formatter="coqui",
+            dataset_name="ft_dataset",
+            path=os.path.dirname(train_csv),
+            meta_file_train=os.path.basename(train_csv),
+            meta_file_val=os.path.basename(eval_csv),
+            language=language,
+        )
+
+        DATASETS_CONFIG_LIST.append(config_dataset)
 
     # Define the path where XTTS v2.0.1 files will be downloaded
     CHECKPOINTS_OUT_PATH = os.path.join(OUT_PATH, "XTTS_v2.0_original_model_files/")
@@ -246,14 +218,11 @@ def train_gpt(language, num_epochs, batch_size, grad_acumm, train_csv, eval_csv,
     return trainer_out_path
 
 if __name__ == "__main__":
-    parser = HfArgumentParser(XttsTrainerArguments)
-
-    args = parser.parse_args_into_dataclasses()[0]
+    parser = create_xtts_trainer_parser()
+    args = parser.parse_args()
 
     trainer_out_path = train_gpt(
-        language=args.language,
-        train_csv=args.train_csv_path,
-        eval_csv=args.eval_csv_path,
+        metadatas=args.metadatas,
         output_path=args.output_path,
         num_epochs=args.num_epochs,
         batch_size=args.batch_size,

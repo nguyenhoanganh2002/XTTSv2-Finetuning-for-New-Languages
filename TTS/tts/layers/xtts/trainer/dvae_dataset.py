@@ -16,10 +16,10 @@ def key_samples_by_col(samples, col):
     return samples_by_col
 
 class DVAEDataset(torch.utils.data.Dataset):
-    def __init__(self, samples, sample_rate, is_eval):
+    def __init__(self, samples, sample_rate, is_eval, max_wav_len=255995):
         self.sample_rate = sample_rate
         self.is_eval = is_eval
-        self.max_wav_len = 255995
+        self.max_wav_len = max_wav_len
         self.samples = samples
         self.training_seed = 1
         self.failed_samples = set()
